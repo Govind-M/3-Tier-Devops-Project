@@ -17,7 +17,7 @@ ARG REACT_APP_API
 ENV REACT_APP_API=$REACT_APP_API
 
 # Build the react app (generates static files in /build)
-RUN npm build
+RUN npm run build
 
 # Stage 2 : Serve with Nginx
 FROM nginx:alpine
