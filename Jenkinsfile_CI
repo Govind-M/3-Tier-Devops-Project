@@ -45,17 +45,62 @@ pipeline{
     		steps {
                 withSonarQubeEnv('sonar') {
                     sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=NodeJS-Project \
-                            -Dsonar.projectKey=NodeJS-Project ''''
+                            -Dsonar.projectKey=NodeJS-Project '''
     			}
     		}
     	}
 
     	stage('Quality Gate Check') {
     		steps {
-    			timeout(time: 1, unit: 'Hour') {
-    				waitForQualityGate abortPipeline: false, credentialId: 'sonar-token'
-    			}
+    			timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
     		}
     	}
+
+    	stage('Trivy FS Scan') {
+    		steps {
+    			sh 'trivy fs --format table -o fs-report.html .'
+    		}
+    	}
+
+    	stage('Build-Tag & Push Backend Docker Image') {
+    		steps {
+    			script {
+    				withDockerRegistry(credentialsId: 'docker-cred') {
+                        dir('api') {
+                            sh 'docker build -t manojgovind/usermanagementbackend:latest .'
+                            sh 'trivy image --format table -o backend-image-report.html manojgovind/usermanagementbackend:latest '
+                            sh 'docker push manojgovind/usermanagementbackend:latest'
+                        }
+                    }
+    			}  			
+    		}
+    	}
+
+    	stage('Build-Tag & Push Frontend Docker Image') {
+    		steps {
+    			script {
+    				withDockerRegistry(credentialsId: 'docker-cred') {
+                        dir('client') {
+                            sh 'docker build -t manojgovind/usermanagementfrontend:latest .'
+                            sh 'trivy image --format table -o backend-image-report.html manojgovind/usermanagementfrontend:latest '
+                            sh 'docker push manojgovind/usermanagementfrontend:latest'
+                        }
+                    }
+    			}  			
+    		}
+    	}
+
+    	stage('Docker Deploy via Compose') {
+            steps {
+                script {
+                    sh 'docker-compose up -d'
+                }
+            }
+        }
+
+
+    	
     }
 }
