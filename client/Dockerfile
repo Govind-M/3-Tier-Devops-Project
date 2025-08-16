@@ -25,7 +25,7 @@ FROM nginx:alpine
 COPY --from=builder /app/build /usr/share/nginx/html
 
 # Add custom nginx config (optional but usually required for SPA )
-COPY default.cong /etc/nginx/conf.d/default.conf
+COPY default.conf /etc/nginx/conf.d/default.conf
 
 #  Prevent directory listings and ensure correct permissions
 RUN chmod -R 755 /usr/share/nginx/html
