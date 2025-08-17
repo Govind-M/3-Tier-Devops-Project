@@ -83,7 +83,7 @@ pipeline{
     			script {
     				withDockerRegistry(credentialsId: 'docker-cred') {
                         dir('client') {
-                            sh 'docker build -t manojgovind/usermanagementfrontend:latest .'
+                            sh 'docker build --no-cache -t manojgovind/usermanagementfrontend:latest .'
                             sh 'trivy image --format table -o backend-image-report.html manojgovind/usermanagementfrontend:latest '
                             sh 'docker push manojgovind/usermanagementfrontend:latest'
                         }
