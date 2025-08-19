@@ -7,7 +7,7 @@ output "node_group_id" {
 }
 
 output "vpc_id" {
-  value = aws_vpc.devops_vpc.id
+  value = data.aws_vpc.default.id
 }
 
 output "subnet_ids" {
