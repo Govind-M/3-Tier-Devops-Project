@@ -9,7 +9,7 @@ data "aws_vpc" "default"{
 resource "aws_subnet" "devops_subnet" {
   count = 2
   vpc_id                  = data.aws_vpc.default.id
-  cidr_block              = cidrsubnet(data.aws_vpc.default.cidr_block, 8, count.index)
+  cidr_block              = cidrsubnet(data.aws_vpc.default.cidr_block, 8, count.index+64)
   availability_zone       = element(["ap-south-1a", "ap-south-1b"], count.index)
   map_public_ip_on_launch = true
 
