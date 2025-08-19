@@ -2,18 +2,14 @@ provider "aws" {
   region = "ap-south-1"
 }
 
-resource "aws_vpc" "devops_vpc" {
-  cidr_block = "10.0.0.0/16"
-
-  tags = {
-    Name = "usermanagement-vpc"
-  }
+data "aws_vpc" "default"{
+    default = true
 }
 
 resource "aws_subnet" "devops_subnet" {
   count = 2
-  vpc_id                  = aws_vpc.devops_vpc.id
-  cidr_block              = cidrsubnet(aws_vpc.devops_vpc.cidr_block, 8, count.index)
+  vpc_id                  = data.aws_vpc.default.id
+  cidr_block              = cidrsubnet(data.aws_vpc.default.cidr_block, 8, count.index)
   availability_zone       = element(["ap-south-1a", "ap-south-1b"], count.index)
   map_public_ip_on_launch = true
 
@@ -22,20 +18,19 @@ resource "aws_subnet" "devops_subnet" {
   }
 }
 
-resource "aws_internet_gateway" "devops_igw" {
-  vpc_id = aws_vpc.devops_vpc.id
-
-  tags = {
-    Name = "devops-igw"
+data "aws_internet_gateway" "default_igw" {
+  filter {
+    name   = "attachment.vpc-id"
+    values = [data.aws_vpc.default.id]
   }
 }
 
 resource "aws_route_table" "devops_route_table" {
-  vpc_id = aws_vpc.devops_vpc.id
+  vpc_id = data.aws_vpc.default.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.devops_igw.id
+    gateway_id = data.aws_internet_gateway.default_igw.id
   }
 
   tags = {
@@ -50,7 +45,7 @@ resource "aws_route_table_association" "devops_association" {
 }
 
 resource "aws_security_group" "devops_cluster_sg" {
-  vpc_id = aws_vpc.devops_vpc.id
+  vpc_id = data.aws_vpc.default.id
 
   egress {
     from_port   = 0
@@ -65,7 +60,7 @@ resource "aws_security_group" "devops_cluster_sg" {
 }
 
 resource "aws_security_group" "devops_node_sg" {
-  vpc_id = aws_vpc.devops_vpc.id
+  vpc_id = data.aws_vpc.default.id
 
   ingress {
     from_port   = 0
