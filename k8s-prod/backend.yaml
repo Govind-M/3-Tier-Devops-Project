@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: manojgovind/usermanagementbackend
+          image: manojgovind/usermanagementbackend:latest
           ports:
             - containerPort: 5000
           env:
