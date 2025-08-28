@@ -46,6 +46,6 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - adityajaiswal.com
-        - www.adityajaiswal.com
+        - app.blog.govindmanoj.com
+        - www.app.blog.govindmanoj.com
       secretName: govindmanoj-co-tls
